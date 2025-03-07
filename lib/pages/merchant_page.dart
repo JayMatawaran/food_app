@@ -5,6 +5,7 @@ import 'package:food_app/pages/welcome_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+
 class MerchantPage extends StatefulWidget {
   const MerchantPage({super.key});
 
@@ -14,13 +15,11 @@ class MerchantPage extends StatefulWidget {
 
 class _MerchantPageState extends State<MerchantPage> {
   List<dynamic> merchants = [];
-  List<dynamic> posSystems = [];
-  dynamic selectedMerchant;
-  dynamic selectedPOS;
-  bool isPOSEnabled = false;
-  bool isContinueEnabled = false;
-  String searchMerchantQuery = '';
-  String searchPOSQuery = '';
+  List<dynamic> posList = [];
+  String? selectedMerchant;
+  String? selectedPos;
+  bool isMerchantSelected = false;
+  bool isPosSelected = false;
 
   @override
   void initState() {
@@ -29,179 +28,65 @@ class _MerchantPageState extends State<MerchantPage> {
   }
 
   Future<void> fetchMerchants() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://raw.githubusercontent.com/JayMatawaran/APIs/refs/heads/main/merchants%26pos.json'));
-      if (response.statusCode == 200) {
-        setState(() {
-          merchants = json.decode(response.body)['merchants'];
-          print('Merchants loaded: ${merchants.length}'); // Debug print
-        });
-      } else {
-        throw Exception('Failed to load merchants');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+    final response = await http.get(Uri.parse(
+        'https://raw.githubusercontent.com/JayMatawaran/APIs/refs/heads/main/merchants%26pos.json'));
+    if (response.statusCode == 200) {
+      setState(() {
+        merchants = json.decode(response.body)['merchants'];
+      });
+    } else {
+      throw Exception('Failed to load merchants');
     }
   }
 
-  void _showMerchantDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Select Merchant'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search...',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchMerchantQuery = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                Container(
-                  constraints: BoxConstraints(maxHeight: 200), // Constrain height
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: ClampingScrollPhysics(), // Prevent scrolling issues
-                    itemCount: merchants.length,
-                    itemBuilder: (context, index) {
-                      final merchant = merchants[index];
-                      if (searchMerchantQuery.isNotEmpty &&
-                          !merchant['merchant_name']
-                              .toLowerCase()
-                              .contains(searchMerchantQuery.toLowerCase())) {
-                        return SizedBox.shrink(); // Hide non-matching items
-                      }
-                      return ListTile(
-                        title: Text(merchant['merchant_name']),
-                        onTap: () {
-                          setState(() {
-                            selectedMerchant = merchant;
-                            posSystems = merchant['pos_systems'];
-                            isPOSEnabled = true;
-                            isContinueEnabled = false;
-                          });
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void onMerchantSelected(String merchant) {
+    setState(() {
+      selectedMerchant = merchant;
+      isMerchantSelected = true;
+      selectedPos = null;
+      isPosSelected = false;
+      posList = merchants.firstWhere((m) => m['merchant_name'] == merchant)['pos_systems'];
+    });
   }
 
-  void _showPOSDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Select POS'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search...',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchPOSQuery = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                Container(
-                  constraints: BoxConstraints(maxHeight: 200), // Constrain height
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: ClampingScrollPhysics(), // Prevent scrolling issues
-                    itemCount: posSystems.length,
-                    itemBuilder: (context, index) {
-                      final pos = posSystems[index];
-                      if (searchPOSQuery.isNotEmpty &&
-                          !pos['pos_name']
-                              .toLowerCase()
-                              .contains(searchPOSQuery.toLowerCase())) {
-                        return SizedBox.shrink(); // Hide non-matching items
-                      }
-                      return ListTile(
-                        title: Text(pos['pos_name']),
-                        onTap: () {
-                          setState(() {
-                            selectedPOS = pos;
-                            isContinueEnabled = true;
-                          });
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void onPosSelected(String pos) {
+    setState(() {
+      selectedPos = pos;
+      isPosSelected = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = screenWidth * 0.8;
-
     return Scaffold(
       body: Container(
-        color: Colors.white,
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/logo.png', height: 150, width: 150),
-                SizedBox(height: 40),
+                SizedBox(
+                  height: 150,
+                  width: 150,
+                  child: Image.asset('assets/images/logo.png'),
+                ),
+                SizedBox(height: 20),
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showMerchantDialog(context);
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return MerchantSelectionPanel(
+                            merchants: merchants,
+                            onMerchantSelected: onMerchantSelected,
+                          );
+                        },
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
@@ -219,19 +104,29 @@ class _MerchantPageState extends State<MerchantPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 16),
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
-                    onPressed: isPOSEnabled ? () {
-                      _showPOSDialog(context);
-                    } : null,
+                    onPressed: isMerchantSelected
+                        ? () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return PosSelectionPanel(
+                            posList: posList,
+                            onPosSelected: onPosSelected,
+                          );
+                        },
+                      );
+                    }
+                        : null,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: isPOSEnabled ? AppColors.jet : Colors.grey,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: isMerchantSelected ? AppColors.jet : Colors.grey,
                     ),
                     child: Text(
                       'Select POS',
@@ -242,12 +137,12 @@ class _MerchantPageState extends State<MerchantPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 16),
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
-                    onPressed: isContinueEnabled ? () {
-                      Navigator.pushReplacement(
+                    onPressed: isPosSelected ? () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => WelcomePage()),
                       );
@@ -257,7 +152,7 @@ class _MerchantPageState extends State<MerchantPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      backgroundColor: isContinueEnabled ? AppColors.airforceBlue : Colors.grey,
+                      backgroundColor: isPosSelected ? AppColors.airforceBlue : Colors.grey,
                     ),
                     child: Text(
                       'Continue',
@@ -269,31 +164,17 @@ class _MerchantPageState extends State<MerchantPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 16),
                 SizedBox(
                   width: buttonWidth,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => LoginPage()),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.blueGrey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Text('Logout'),
                   ),
                 ),
               ],
@@ -301,6 +182,60 @@ class _MerchantPageState extends State<MerchantPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MerchantSelectionPanel extends StatelessWidget {
+  final List<dynamic> merchants;
+  final Function(String) onMerchantSelected;
+
+  MerchantSelectionPanel({
+    required this.merchants,
+    required this.onMerchantSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: merchants.length,
+      itemBuilder: (context, index) {
+        final merchant = merchants[index]['merchant_name'];
+        return ListTile(
+          title: Text(merchant),
+          onTap: () {
+            onMerchantSelected(merchant);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+}
+
+class PosSelectionPanel extends StatelessWidget {
+  final List<dynamic> posList;
+  final Function(String) onPosSelected;
+
+  PosSelectionPanel({
+    required this.posList,
+    required this.onPosSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: posList.length,
+      itemBuilder: (context, index) {
+        final pos = posList[index]['pos_name'];
+        return ListTile(
+          title: Text(pos),
+          onTap: () {
+            onPosSelected(pos);
+            Navigator.pop(context);
+          },
+        );
+      },
     );
   }
 }
