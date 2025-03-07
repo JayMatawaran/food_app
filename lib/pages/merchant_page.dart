@@ -61,124 +61,122 @@ class _MerchantPageState extends State<MerchantPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = screenWidth * 0.8;
     return Scaffold(
-      body: Container(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 150,
-                  width: 150,
-                  child: Image.asset('assets/images/logo.png'),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 150,
+                width: 150,
+                child: Image.asset('assets/images/logo.png'),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return MerchantSelectionPanel(
+                          merchants: merchants,
+                          onMerchantSelected: onMerchantSelected,
+                        );
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: AppColors.jet,
+                  ),
+                  child: Text(
+                    'Select Merchant',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: buttonWidth,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return MerchantSelectionPanel(
-                            merchants: merchants,
-                            onMerchantSelected: onMerchantSelected,
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: isMerchantSelected
+                      ? () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return PosSelectionPanel(
+                          posList: posList,
+                          onPosSelected: onPosSelected,
+                        );
+                      },
+                    );
+                  }
+                      : null,
+                  style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      backgroundColor: AppColors.jet,
-                    ),
-                    child: Text(
-                      'Select Merchant',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
+                      backgroundColor: isMerchantSelected ? AppColors.jet : Colors.grey,
+                  ),
+                  child: Text(
+                    'Select POS',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  child: ElevatedButton(
-                    onPressed: isMerchantSelected
-                        ? () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return PosSelectionPanel(
-                            posList: posList,
-                            onPosSelected: onPosSelected,
-                          );
-                        },
-                      );
-                    }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        backgroundColor: isMerchantSelected ? AppColors.jet : Colors.grey,
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: isPosSelected ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WelcomePage()),
+                    );
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      'Select POS',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
+                    backgroundColor: isPosSelected ? AppColors.airforceBlue : Colors.grey,
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  child: ElevatedButton(
-                    onPressed: isPosSelected ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => WelcomePage()),
-                      );
-                    } : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: isPosSelected ? AppColors.airforceBlue : Colors.grey,
-                    ),
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text('Logout'),
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: buttonWidth,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    },
-                    child: Text('Logout'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -190,7 +188,7 @@ class MerchantSelectionPanel extends StatelessWidget {
   final List<dynamic> merchants;
   final Function(String) onMerchantSelected;
 
-  MerchantSelectionPanel({
+  const MerchantSelectionPanel({super.key,
     required this.merchants,
     required this.onMerchantSelected,
   });
@@ -217,7 +215,7 @@ class PosSelectionPanel extends StatelessWidget {
   final List<dynamic> posList;
   final Function(String) onPosSelected;
 
-  PosSelectionPanel({
+  const PosSelectionPanel({super.key,
     required this.posList,
     required this.onPosSelected,
   });

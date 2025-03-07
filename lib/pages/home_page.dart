@@ -8,10 +8,10 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   String menuTitle = 'Main Menu';
   String logo = '';
   List<Map<String, dynamic>> categories = [];
@@ -46,7 +46,12 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isCategoriesLoading = false;
       });
-      print('Error fetching categories: $e');
+      SnackBar(
+          content: Text('Error fetching categories: $e',
+              style: TextStyle(color: Colors.white)
+          ),
+          backgroundColor: AppColors.jet,
+      );
     }
   }
 
@@ -61,7 +66,12 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isProductsLoading = false;
       });
-      print('Error fetching products: $e');
+      SnackBar(
+        content: Text('Error fetching products: $e',
+            style: TextStyle(color: Colors.white)
+        ),
+        backgroundColor: AppColors.jet,
+      );
     }
   }
 
@@ -93,7 +103,7 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           // Carousel Slider Section
-          Container(
+          SizedBox(
             height: 150,
             width: double.infinity,
             child: CarouselImg(onLogoLoaded: _updateLogo),
@@ -275,7 +285,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     height: 70,
                     width: double.infinity,
                     child: Row(
@@ -302,10 +312,10 @@ class _HomePageState extends State<HomePage> {
 
                       ElevatedButton(
                         onPressed: (){},
-                        child: Text('Confirm', style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.airforceBlue,
                         ),
+                        child: Text('Confirm', style: TextStyle(color: Colors.white),),
                       ),
                     ]
                   )

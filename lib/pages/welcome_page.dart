@@ -28,7 +28,7 @@ class WelcomePage extends StatelessWidget {
               child: Container(
                 height: 100,
                 width: double.infinity,
-                color: AppColors.airforceBlue.withOpacity(0.7),
+                color: AppColors.airforceBlue.withAlpha((0.7 * 255).round()),
                 child: Center(
                   child: Text(
                     'Touch to start',
@@ -49,11 +49,13 @@ class WelcomePage extends StatelessWidget {
 }
 
 class CarouselImage extends StatefulWidget {
+  const CarouselImage({super.key});
+
   @override
-  _CarouselImageState createState() => _CarouselImageState();
+  CarouselImageState createState() => CarouselImageState();
 }
 
-class _CarouselImageState extends State<CarouselImage> {
+class CarouselImageState extends State<CarouselImage> {
   List<String> imageUrls = [];
   bool isLoading = true;
 
@@ -78,14 +80,18 @@ class _CarouselImageState extends State<CarouselImage> {
           imageUrls = filteredRecipes.map((recipe) => recipe['image'] as String).toList();
           isLoading = false;
         });
-      } else {
+      }
+      else {
         throw Exception('Failed to load images');
       }
-    } catch (e) {
+    }
+    catch (e) {
       setState(() {
         isLoading = false;
       });
-      print('Error: $e');
+      SnackBar(
+        content: Text('Error: $e'),
+      );
     }
   }
 

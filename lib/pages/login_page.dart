@@ -5,11 +5,13 @@ import 'package:http/http.dart' as http;
 import 'merchant_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -24,49 +26,65 @@ class _LoginPageState extends State<LoginPage> {
     try {
       List<Map<String, String>> credentials = await fetchUserCredentials();
 
+      // Check if the widget is still mounted before proceeding
+      if (!mounted) return;
+
       String enteredEmail = _emailController.text.trim();
       String enteredPassword = _passwordController.text.trim();
 
       bool isValidUser = credentials.any((user) =>
       user['email'] == enteredEmail ||
           user['username'] == enteredEmail &&
-          user['password'] == enteredPassword);
+              user['password'] == enteredPassword);
 
       if (isValidUser) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MerchantPage()),
-        );
-      }
-      else if (enteredEmail.isEmpty || enteredPassword.isEmpty){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Please enter email and password',
-                style: TextStyle(color: Colors.white)),
-            backgroundColor: AppColors.jet,
-          ),
-        );
-      }
-      else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Invalid email or password', style: TextStyle(color: Colors.white)),
-            backgroundColor: AppColors.jet,
-          ),
-        );
+        // Check if the widget is still mounted before navigating
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MerchantPage()),
+          );
+        }
+      } else if (enteredEmail.isEmpty || enteredPassword.isEmpty) {
+        // Check if the widget is still mounted before showing the SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Please enter email and password',
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: AppColors.jet,
+            ),
+          );
+        }
+      } else {
+        // Check if the widget is still mounted before showing the SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Invalid email or password', style: TextStyle(color: Colors.white)),
+              backgroundColor: AppColors.jet,
+            ),
+          );
+        }
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching user data'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // Check if the widget is still mounted before showing the SnackBar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error fetching user data'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // Check if the widget is still mounted before updating the state
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
